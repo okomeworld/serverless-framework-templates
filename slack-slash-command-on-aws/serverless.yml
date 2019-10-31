@@ -1,0 +1,36 @@
+service:
+  name: slack-slash-command-on-aws
+#app: your-app-name
+#tenant: your-tenant-name
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+  - serverless-ngrok-tunnel
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  stage: ${opt:stage, 'dev'}
+  environment: ${file(env/${self:provider.stage}.yml):env}
+  region: ${file(env/${self:provider.stage}.yml):settings.aws_region}
+  profile: ${file(env/${self:provider.stage}.yml):settings.aws_profile}
+
+package:
+  individually: true
+
+functions:
+  hello:
+    handler: src/functions/hello/index.handler
+    events:
+      - http:
+          method: get
+          path: hello
+
+custom:
+  ngrokTunnel:
+    tunnels:
+      - port: 3000
+        ngrokOptions:
+          region: 'ap'
